@@ -54,9 +54,103 @@ const Tree = (arr) => {
   const arrWithoutDuplicates = removeDuplicate(arr);
   const sortedArr = mergeSort(arrWithoutDuplicates);
 
-  const root = buildTree(sortedArr);
-  console.log(root, root.left, root.right);
-  return root;
+  let root = buildTree(sortedArr);
+
+  const insert = (data) => {
+    if (!root) {
+      root = Node(data);
+      return;
+    }
+
+    let pointer = root;
+
+    while (true) {
+      if (data == pointer.data) return;
+
+      if (data < pointer.data) {
+        if (!pointer.left) {
+          pointer.left = Node(data);
+          break;
+        }
+        pointer = pointer.left;
+      } else {
+        if (!pointer.right) {
+          pointer.right = Node(data);
+          break;
+        }
+        pointer = pointer.right;
+      }
+    }
+  };
+
+  const searchNodeToDeleteAndParent = (target) => {
+    let parent = null;
+    let pointer = root;
+    while (pointer) {
+      if (pointer.data == target) {
+        return { nodeToDelete: pointer, parentNode: parent };
+      }
+
+      parent = pointer;
+
+      if (pointer.data > target) {
+        pointer = pointer.left;
+      } else {
+        pointer = pointer.right;
+      }
+    }
+    return null;
+  };
+
+  const searchReplacementNodeAndParent = (nodeToDelete) => {
+    // if it has no child
+    if (!nodeToDelete.left && !nodeToDelete.right) return null;
+
+    // if it only has one child
+    if (
+      (!nodeToDelete.left && nodeToDelete.right) ||
+      (nodeToDelete.left && !nodeToDelete.right)
+    ) {
+      return nodeToDelete.left ? nodeToDelete.left : nodeToDelete.right;
+    }
+
+    // if it has two children
+    let parentToReplacementNode = nodeToDelete;
+    let nodeToReplacePointer = nodeToDelete.right;
+
+    while (nodeToReplacePointer.left) {
+      parentToReplacementNode = nodeToReplacePointer;
+      nodeToReplacePointer = nodeToReplacePointer.left;
+    }
+    return { replacementNode: nodeToReplacePointer, parentToReplacementNode };
+  };
+
+  const deleteItem = (data) => {
+    if (!root) return;
+
+    // if left without any deletion, data is not found in the BST
+
+    const { nodeToDelete, parentNode } = searchNodeToDeleteAndParent(data);
+    if (!nodeToDelete) {
+      return null;
+    }
+
+    const { replacementNode, parentToReplacementNode } =
+      searchReplacementNodeAndParent(nodeToDelete);
+
+    parentToReplacementNode.left = replacementNode.right;
+    replacementNode.right = nodeToDelete.right;
+    replacementNode.left = nodeToDelete.left;
+
+    // if the nodeToDelete is the root
+    if (!parentNode) {
+      root = replacementNode;
+    } else {
+      parentNode.right = replacementNode;
+    }
+  };
+
+  return { root, insert, deleteItem };
 };
 
 // helper function to print tree, provided by the Odin Project
@@ -74,4 +168,7 @@ const prettyPrint = (node, prefix = '', isLeft = true) => {
   }
 };
 
-prettyPrint(Tree([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]));
+const sample = Tree([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]);
+prettyPrint(sample.root);
+sample.insert(-1);
+prettyPrint(sample.root);
