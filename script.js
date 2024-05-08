@@ -83,73 +83,76 @@ const Tree = (arr) => {
     }
   };
 
-  const searchNodeToDeleteAndParent = (target) => {
-    let parent = null;
-    let pointer = root;
-    while (pointer) {
-      if (pointer.data == target) {
-        return { nodeToDelete: pointer, parentNode: parent };
-      }
-
-      parent = pointer;
-
-      if (pointer.data > target) {
-        pointer = pointer.left;
-      } else {
-        pointer = pointer.right;
-      }
-    }
-    return null;
-  };
-
-  const searchReplacementNodeAndParent = (nodeToDelete) => {
-    // if it has no child
-    if (!nodeToDelete.left && !nodeToDelete.right) return null;
-
-    // if it only has one child
-    if (
-      (!nodeToDelete.left && nodeToDelete.right) ||
-      (nodeToDelete.left && !nodeToDelete.right)
-    ) {
-      return nodeToDelete.left ? nodeToDelete.left : nodeToDelete.right;
-    }
-
-    // if it has two children
-    let parentToReplacementNode = nodeToDelete;
-    let nodeToReplacePointer = nodeToDelete.right;
-
-    while (nodeToReplacePointer.left) {
-      parentToReplacementNode = nodeToReplacePointer;
-      nodeToReplacePointer = nodeToReplacePointer.left;
-    }
-    return { replacementNode: nodeToReplacePointer, parentToReplacementNode };
+  const findNodeAndParent = (data, node, parent = null) => {
+    if (!node) return null;
+    if (data == node.data) return { node, parent };
+    if (data < node.data) return findNodeAndParent(data, node.left);
+    else return findNodeAndParent(data, node.right);
   };
 
   const deleteItem = (data) => {
-    if (!root) return;
+    // if no root node
+    if (!root) {
+      console.log('The BST is empty!');
+      return;
+    }
 
-    // if left without any deletion, data is not found in the BST
+    const { nodeToDelete, parent } = findNodeAndParent(data, root);
 
-    const { nodeToDelete, parentNode } = searchNodeToDeleteAndParent(data);
+    // if target data is not found
     if (!nodeToDelete) {
-      return null;
+      console.log('Target is not found! Nothing is deleted');
+      return;
     }
 
-    const { replacementNode, parentToReplacementNode } =
-      searchReplacementNodeAndParent(nodeToDelete);
+    // if target has no children
+    if (!nodeToDelete.left && !nodeToDelete.right) {
+      if (!parent) {
+        root = null;
+      } else if (parent.left.data == nodeToDelete.data) {
+        parent.left = null;
+      } else {
+        parent.right = null;
+      }
 
-    parentToReplacementNode.left = replacementNode.right;
-    replacementNode.right = nodeToDelete.right;
-    replacementNode.left = nodeToDelete.left;
+      // when target's right child is occupied
+    } else if (nodeToDelete.left == null) {
+      if (!parent) {
+        root = nodeToDelete.right;
+      } else if (parent.left.data == nodeToDelete.data) {
+        parent.left = nodeToDelete.right;
+      } else {
+        parent.right = nodeToDelete.right;
+      }
 
-    // if the nodeToDelete is the root
-    if (!parentNode) {
-      root = replacementNode;
+      //when target's left child is occupied
+    } else if (nodeToDelete.right == null) {
+      if (!parent) {
+        root = nodeToDelete.left;
+      } else if (parent.left.data == nodeToDelete.data) {
+        parent.left = nodeToDelete.left;
+      } else {
+        parent.right = nodeToDelete.left;
+      }
+
+      // when target has both children
     } else {
-      parentNode.right = replacementNode;
+      let successorParent = nodeToDelete;
+      let successor = nodeToDelete.right;
+      while (successor.left) {
+        successorParent = successor;
+        successor = successor.left;
+      }
+      nodeToDelete.data = successor.data;
+      if (successorParent.left.data == successor.data) {
+        successorParent.left = successor.right;
+      } else {
+        successorParent.right = successor.right;
+      }
     }
-  };
 
+    // use recursion to find the node to delete
+  };
   return { root, insert, deleteItem };
 };
 
@@ -171,4 +174,6 @@ const prettyPrint = (node, prefix = '', isLeft = true) => {
 const sample = Tree([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]);
 prettyPrint(sample.root);
 sample.insert(-1);
+prettyPrint(sample.root);
+sample.deleteItem(-1);
 prettyPrint(sample.root);
