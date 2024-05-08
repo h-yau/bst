@@ -85,9 +85,12 @@ const Tree = (arr) => {
 
   const findNodeAndParent = (data, node, parent = null) => {
     if (!node) return null;
-    if (data == node.data) return { node, parent };
-    if (data < node.data) return findNodeAndParent(data, node.left);
-    else return findNodeAndParent(data, node.right);
+    if (data == node.data) return { nodeToDelete: node, parent };
+    if (data < node.data) {
+      return findNodeAndParent(data, node.left, node);
+    } else {
+      return findNodeAndParent(data, node.right, node);
+    }
   };
 
   const deleteItem = (data) => {
