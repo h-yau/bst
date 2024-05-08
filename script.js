@@ -192,7 +192,63 @@ const Tree = (arr) => {
     return nodesArray;
   };
 
-  return { root, insert, deleteItem, find, levelOrder };
+  const inOrder = (callback = null) => {
+    const traverse = (node, result = []) => {
+      if (!node) return result;
+
+      traverse(node.left, result);
+
+      if (callback) result.push(callback(node.data));
+      else result.push(node.data);
+
+      traverse(node.right, result);
+
+      return result;
+    };
+    return traverse(root);
+  };
+
+  const preOrder = (callback = null) => {
+    const traverse = (node, result = []) => {
+      if (!node) return result;
+
+      if (callback) result.push(callback(node.data));
+      else result.push(node.data);
+
+      traverse(node.left, result);
+      traverse(node.right, result);
+
+      return result;
+    };
+
+    return traverse(root);
+  };
+
+  const postOrder = (callback = null) => {
+    const traverse = (node, result = []) => {
+      if (!node) return result;
+
+      traverse(node.left, result);
+      traverse(node.right, result);
+
+      if (callback) result.push(callback(node.data));
+      else result.push(node.data);
+
+      return result;
+    };
+    return traverse(root);
+  };
+
+  return {
+    root,
+    insert,
+    deleteItem,
+    find,
+    levelOrder,
+    inOrder,
+    preOrder,
+    postOrder,
+  };
 };
 
 // helper function to print tree, provided by the Odin Project
@@ -225,3 +281,12 @@ console.log(sample.levelOrder(simpleCallback));
 function simpleCallback(value) {
   return value * 2;
 }
+
+console.log(sample.preOrder());
+console.log(sample.preOrder(simpleCallback));
+
+console.log(sample.inOrder());
+console.log(sample.inOrder(simpleCallback));
+
+console.log(sample.postOrder());
+console.log(sample.postOrder(simpleCallback));
