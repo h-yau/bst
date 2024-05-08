@@ -153,10 +153,26 @@ const Tree = (arr) => {
         successorParent.right = successor.right;
       }
     }
-
-    // use recursion to find the node to delete
   };
-  return { root, insert, deleteItem };
+
+  const find = (data) => {
+    if (!root) return;
+
+    let pointer = root;
+
+    while (pointer) {
+      if (pointer.data == data) {
+        return pointer;
+      } else if (data < pointer.data) {
+        pointer = pointer.left;
+      } else {
+        pointer = pointer.right;
+      }
+    }
+    console.log('Target not found!');
+    return;
+  };
+  return { root, insert, deleteItem, find };
 };
 
 // helper function to print tree, provided by the Odin Project
@@ -179,4 +195,8 @@ prettyPrint(sample.root);
 sample.insert(-1);
 prettyPrint(sample.root);
 sample.deleteItem(-1);
+prettyPrint(sample.root);
+sample.deleteItem(7);
+prettyPrint(sample.root);
+sample.deleteItem(8);
 prettyPrint(sample.root);
