@@ -172,7 +172,27 @@ const Tree = (arr) => {
     console.log('Target not found!');
     return;
   };
-  return { root, insert, deleteItem, find };
+
+  // Iterative Breadth First Search
+  const levelOrder = (callback = null) => {
+    const nodesArray = [];
+    const queue = [root];
+
+    while (queue.length != 0) {
+      if (callback) {
+        nodesArray.push(callback(queue[0].data));
+      } else {
+        nodesArray.push(queue[0].data);
+      }
+      if (queue[0].left) queue.push(queue[0].left);
+      if (queue[0].right) queue.push(queue[0].right);
+      queue.shift();
+    }
+
+    return nodesArray;
+  };
+
+  return { root, insert, deleteItem, find, levelOrder };
 };
 
 // helper function to print tree, provided by the Odin Project
@@ -200,3 +220,8 @@ sample.deleteItem(7);
 prettyPrint(sample.root);
 sample.deleteItem(8);
 prettyPrint(sample.root);
+console.log(sample.levelOrder(simpleCallback));
+
+function simpleCallback(value) {
+  return value * 2;
+}
