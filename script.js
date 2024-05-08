@@ -52,7 +52,7 @@ const buildTree = (arr) => {
 
 const Tree = (arr) => {
   const arrWithoutDuplicates = removeDuplicate(arr);
-  const sortedArr = mergeSort(arrWithoutDuplicates);
+  let sortedArr = mergeSort(arrWithoutDuplicates);
 
   let root = buildTree(sortedArr);
 
@@ -239,8 +239,49 @@ const Tree = (arr) => {
     return traverse(root);
   };
 
+  const height = (node) => {
+    if (!node) return 0;
+
+    let count = 0;
+    if (node.left || node.right) count++;
+    const lheight = height(node.left);
+    const rheight = height(node.right);
+
+    return Math.max(lheight, rheight) + count;
+  };
+
+  const depth = (node) => {
+    if (!node) {
+      console.log("There's no node!");
+      return;
+    }
+    let pointer = root;
+    let count = 0;
+
+    while (pointer) {
+      if (node.data == pointer.data) return count;
+      if (node.data < pointer.data) pointer = pointer.left;
+      else if (node.data > pointer.data) pointer = pointer.right;
+      count++;
+    }
+    console.log('Node not found!');
+    return;
+  };
+
+  const isBalanced = () => {
+    if (!root) return true;
+    return Math.abs(height(root.left) - height(root.right)) <= 1;
+  };
+
+  const rebalance = () => {
+    const sortedArr = inOrder();
+    root = buildTree(sortedArr);
+  };
+
   return {
-    root,
+    get root() {
+      return root;
+    },
     insert,
     deleteItem,
     find,
@@ -248,6 +289,10 @@ const Tree = (arr) => {
     inOrder,
     preOrder,
     postOrder,
+    height,
+    depth,
+    isBalanced,
+    rebalance,
   };
 };
 
@@ -290,3 +335,24 @@ console.log(sample.inOrder(simpleCallback));
 
 console.log(sample.postOrder());
 console.log(sample.postOrder(simpleCallback));
+
+console.log(sample.height(sample.root));
+
+console.log(sample.depth());
+console.log(sample.depth(Node(0)));
+console.log(sample.depth(Node(9)));
+console.log(sample.depth(Node(1)));
+
+console.log(sample.isBalanced());
+
+sample.deleteItem(4);
+sample.deleteItem(3);
+sample.deleteItem(5);
+sample.deleteItem(1);
+
+prettyPrint(sample.root);
+
+console.log(sample.isBalanced());
+
+sample.rebalance();
+prettyPrint(sample.root);
